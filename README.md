@@ -215,4 +215,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the complete workflow.
 
 NinjaReviews is released under the [MIT License](LICENSE).
 
-Copyright (c) 2026 HanamiSoftware
+Copyright (c) 2026 Hanami Software / Francesco
