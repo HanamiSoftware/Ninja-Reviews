@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 $isHttps = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
@@ -71,7 +72,7 @@ function runSystemChecks(bool $isHttps): array
         'detail' => $jsonOk ? 'Attivo' : 'Estensione non disponibile',
     ];
 
-    $httpsOk = $isHttps || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443;
+    $httpsOk = $isHttps || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
     $checks[] = [
         'key' => 'https',
         'label' => 'HTTPS',
@@ -119,21 +120,21 @@ function isInstalled(string $configFile, string $installedFile): bool
 
 function getRequestOrigin(): string
 {
-    $origin = trim((string)($_SERVER['HTTP_ORIGIN'] ?? ''));
+    $origin = trim((string) ($_SERVER['HTTP_ORIGIN'] ?? ''));
     if ($origin !== '') {
         return $origin;
     }
 
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host = (string)($_SERVER['HTTP_HOST'] ?? '');
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
     return $host !== '' ? $scheme . '://' . $host : '';
 }
 
 function getBaseUrl(): string
 {
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host = (string)($_SERVER['HTTP_HOST'] ?? '');
-    $script = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/install/index.php'));
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
+    $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/install/index.php'));
     $installDir = rtrim(str_replace('/index.php', '', $script), '/');
     $basePath = preg_replace('~/install$~', '', $installDir) ?: '';
     return rtrim($scheme . '://' . $host . $basePath, '/');
@@ -170,7 +171,7 @@ function googleRequest(string $url, string $apiKey, string $method = 'GET', ?arr
     ]);
 
     $response = curl_exec($ch);
-    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
     if ($response === false) {
@@ -182,7 +183,7 @@ function googleRequest(string $url, string $apiKey, string $method = 'GET', ?arr
         return [false, 502, 'Risposta non valida da Google.'];
     }
     if ($httpCode === 401 || $httpCode === 403) {
-        return [false, 502, 'La API Key non è autorizzata a utilizzare Google Places API.'];
+        return [false, 502, 'Google ha rifiutato la API Key. Verifica che "Places API (New)" sia abilitata sul progetto, che la fatturazione sia attiva e che la chiave non sia ristretta su un altro dominio o API.'];
     }
     if ($httpCode === 429) {
         return [false, 429, 'Google ha temporaneamente limitato le richieste. Riprova tra poco.'];
@@ -198,8 +199,14 @@ function isGoogleHost(string $host): bool
 {
     $host = strtolower($host);
     $allowed = [
-        'google.com', 'www.google.com', 'google.it', 'www.google.it',
-        'maps.google.com', 'maps.google.it', 'maps.app.goo.gl', 'goo.gl'
+        'google.com',
+        'www.google.com',
+        'google.it',
+        'www.google.it',
+        'maps.google.com',
+        'maps.google.it',
+        'maps.app.goo.gl',
+        'goo.gl'
     ];
     foreach ($allowed as $item) {
         if ($host === $item || str_ends_with($host, '.' . $item)) {
@@ -218,7 +225,7 @@ function resolveGoogleMapsUrl(string $url): array
 
     for ($i = 0; $i < 4; $i++) {
         $parts = parse_url($current);
-        $host = strtolower((string)($parts['host'] ?? ''));
+        $host = strtolower((string) ($parts['host'] ?? ''));
         if (!isGoogleHost($host)) {
             return [false, '', 'Il link deve provenire da Google Maps.'];
         }
@@ -239,7 +246,7 @@ function resolveGoogleMapsUrl(string $url): array
             CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_USERAGENT => 'NinjaReviews/1.0 Installer',
         ]);
-        $responseHeaders = (string)curl_exec($ch);
+        $responseHeaders = (string) curl_exec($ch);
         $location = '';
         if (preg_match('/^Location:\s*(.+)$/im', $responseHeaders, $m)) {
             $location = trim($m[1]);
@@ -251,7 +258,7 @@ function resolveGoogleMapsUrl(string $url): array
         }
 
         $locationParts = parse_url($location);
-        if (!is_array($locationParts) || !isGoogleHost((string)($locationParts['host'] ?? ''))) {
+        if (!is_array($locationParts) || !isGoogleHost((string) ($locationParts['host'] ?? ''))) {
             return [false, '', 'Il link Google Maps reindirizza a un dominio non consentito.'];
         }
         $current = $location;
@@ -268,19 +275,19 @@ function parseGoogleMapsUrl(string $url): array
     }
 
     $parts = parse_url($resolved);
-    parse_str((string)($parts['query'] ?? ''), $query);
+    parse_str((string) ($parts['query'] ?? ''), $query);
 
-    if (!empty($query['query_place_id']) && preg_match('/^[A-Za-z0-9:_-]+$/', (string)$query['query_place_id'])) {
-        return [true, 'place_id', (string)$query['query_place_id'], ''];
+    if (!empty($query['query_place_id']) && preg_match('/^[A-Za-z0-9:_-]+$/', (string) $query['query_place_id'])) {
+        return [true, 'place_id', (string) $query['query_place_id'], ''];
     }
     if (!empty($query['query'])) {
-        $text = trim((string)$query['query']);
+        $text = trim((string) $query['query']);
         if ($text !== '') {
             return [true, 'query', $text, ''];
         }
     }
 
-    $path = (string)($parts['path'] ?? '');
+    $path = (string) ($parts['path'] ?? '');
     if (preg_match('~/(?:maps/)?place/([^/]+)~i', $path, $matches)) {
         $text = trim(urldecode(str_replace('+', ' ', $matches[1])));
         if ($text !== '') {
@@ -294,11 +301,11 @@ function parseGoogleMapsUrl(string $url): array
 function normalizePlace(array $place): array
 {
     return [
-        'id' => (string)($place['id'] ?? ''),
-        'name' => (string)($place['displayName']['text'] ?? ''),
-        'address' => (string)($place['formattedAddress'] ?? ''),
-        'rating' => isset($place['rating']) ? (float)$place['rating'] : null,
-        'maps_url' => (string)($place['googleMapsUri'] ?? ''),
+        'id' => (string) ($place['id'] ?? ''),
+        'name' => (string) ($place['displayName']['text'] ?? ''),
+        'address' => (string) ($place['formattedAddress'] ?? ''),
+        'rating' => isset($place['rating']) ? (float) $place['rating'] : null,
+        'maps_url' => (string) ($place['googleMapsUri'] ?? ''),
     ];
 }
 
@@ -313,16 +320,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         jsonResponse(['success' => false, 'message' => 'NinjaReviews è già configurato.'], 409);
     }
 
-    $csrf = (string)($_POST['csrf_token'] ?? '');
+    $csrf = (string) ($_POST['csrf_token'] ?? '');
     if (!hash_equals($csrfToken, $csrf)) {
         jsonResponse(['success' => false, 'message' => 'Sessione non valida. Ricarica la pagina e riprova.'], 403);
     }
 
-    $action = (string)($_POST['action'] ?? '');
+    $action = (string) ($_POST['action'] ?? '');
 
     if ($action === 'search') {
-        $apiKey = trim((string)($_POST['google_api_key'] ?? ''));
-        $mapsUrl = trim((string)($_POST['google_maps_url'] ?? ''));
+        $apiKey = trim((string) ($_POST['google_api_key'] ?? ''));
+        $mapsUrl = trim((string) ($_POST['google_maps_url'] ?? ''));
 
         if ($apiKey === '') {
             jsonResponse(['success' => false, 'message' => 'Inserisci la Google API Key.'], 422);
@@ -339,11 +346,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($kind === 'place_id') {
             $url = 'https://places.googleapis.com/v1/places/' . rawurlencode($value);
             [$ok, $status, $result] = googleRequest(
-                $url, $apiKey, 'GET', null,
+                $url,
+                $apiKey,
+                'GET',
+                null,
                 'id,displayName,formattedAddress,rating,googleMapsUri'
             );
             if (!$ok) {
-                jsonResponse(['success' => false, 'message' => (string)$result], $status);
+                jsonResponse(['success' => false, 'message' => (string) $result], $status);
             }
             $place = normalizePlace($result);
             if ($place['id'] === '') {
@@ -361,14 +371,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'places.id,places.displayName,places.formattedAddress,places.rating,places.googleMapsUri'
         );
         if (!$ok) {
-            jsonResponse(['success' => false, 'message' => (string)$result], $status);
+            jsonResponse(['success' => false, 'message' => (string) $result], $status);
         }
 
         $places = [];
         foreach (($result['places'] ?? []) as $place) {
-            if (!is_array($place)) continue;
+            if (!is_array($place))
+                continue;
             $normalized = normalizePlace($place);
-            if ($normalized['id'] !== '') $places[] = $normalized;
+            if ($normalized['id'] !== '')
+                $places[] = $normalized;
         }
         if (!$places) {
             jsonResponse(['success' => false, 'message' => 'Non ho trovato attività corrispondenti. Prova con un link Google Maps più specifico.'], 404);
@@ -379,9 +391,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'install') {
-        $apiKey = trim((string)($_SESSION['ninjareviews_install']['api_key'] ?? ''));
+        $apiKey = trim((string) ($_SESSION['ninjareviews_install']['api_key'] ?? ''));
         $places = $_SESSION['ninjareviews_install']['places'] ?? [];
-        $selectedPlaceId = trim((string)($_POST['place_id'] ?? ''));
+        $selectedPlaceId = trim((string) ($_POST['place_id'] ?? ''));
 
         if ($apiKey === '' || !is_array($places)) {
             jsonResponse(['success' => false, 'message' => 'La sessione di installazione è scaduta. Cerca nuovamente l\'attività.'], 409);
@@ -426,7 +438,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $baseUrl = rtrim(getBaseUrl(), '/');
 
-                $baseUrl = rtrim(getBaseUrl(), '/');
+        $baseUrl = rtrim(getBaseUrl(), '/');
         $embed = '<script src="' . htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8') . '/js/embed.js"></script>';
 
 
@@ -476,6 +488,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div>
                     <h2>Google API Key</h2>
                     <p>Inserisci una API Key con Google Places API (New) abilitata.</p>
+                    <p class="nr-help-link"><a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener noreferrer">Non hai ancora una API Key? Crea un progetto e abilita Places API (New) →</a></p>
                     <input id="google_api_key" type="password" autocomplete="new-password" spellcheck="false" placeholder="AIza...">
                 </div>
             </div>

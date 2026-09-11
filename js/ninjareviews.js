@@ -33,14 +33,29 @@
         return '';
     }
 
+    const STAR_PATH = 'M12 2.7l2.77 5.66 6.25.87-4.51 4.4 1.06 6.2L12 16.9l-5.57 2.93 1.06-6.2-4.51-4.4 6.25-.87Z';
+
+    function starSvg(extraClass) {
+        return '<svg class="nr-star-svg' + (extraClass ? ' ' + extraClass : '') +
+            '" viewBox="0 0 24 24" aria-hidden="true"><path d="' + STAR_PATH + '"/></svg>';
+    }
+
     function stars(rating) {
-        const n = Math.max(0, Math.min(5, Number(rating) || 0));
+        const value = Math.max(0, Math.min(5, Number(rating) || 0));
         let html = '';
-        for (let i = 0; i < n; i++) {
-            html += '<span class="nr-star" aria-hidden="true">⭐</span>';
+        for (let i = 0; i < 5; i++) {
+            const fraction = Math.max(0, Math.min(1, value - i));
+            const pct = Math.round(fraction * 1000) / 10;
+            html += '<span class="nr-star" aria-hidden="true">' +
+                starSvg('nr-star-empty') +
+                '<span class="nr-star-fill" style="width:' + pct + '%">' +
+                starSvg() +
+                '</span>' +
+                '</span>';
         }
         return html;
     }
+
 
     function card(review, settings) {
         const authorName = escapeHtml(review.author_name);
@@ -100,7 +115,7 @@
 
         container.classList.add('nr-widget');
         container.innerHTML =
-            '<div class="nr-loading" role="status">Caricamento recensioni…</div>';
+            '<div class="nr-loading" role="status">Caricamento recensioniâ€¦</div>';
 
         function getSlides() {
             return Array.from(container.querySelectorAll('.nr-slide'));
@@ -254,7 +269,7 @@
         })
         .catch(function (error) {
             console.error('[NinjaReviews]', error);
-            showError('Non è stato possibile caricare le recensioni.');
+            showError('Non Ã¨ stato possibile caricare le recensioni.');
         });
     }
 
