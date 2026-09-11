@@ -1,0 +1,4 @@
+Options -Indexes
+<FilesMatch "^\.installed$">
+    Require all denied
+</FilesMatch>

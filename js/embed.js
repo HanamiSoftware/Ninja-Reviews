@@ -1,0 +1,1 @@
+/* NinjaReviews widget styles are supplied as part of the distribution. */
