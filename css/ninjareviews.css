@@ -2,10 +2,10 @@
     --nr-bg: #E9E7DB;
     --nr-border: #C5C0A0;
     --nr-star: #B7282B;
+    --nr-star-empty: #D8D2B8;
     --nr-date: #B7282B;
     --nr-text: #212529;
     --nr-muted: #6C757D;
-
     width: 100%;
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
@@ -119,9 +119,35 @@
 }
 
 .nr-star {
-    color: var(--nr-star);
-    font-size: 15px;
+    position: relative;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-right: 1px;
 }
+
+.nr-star-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    fill: var(--nr-star-empty);
+    display: block;
+}
+
+.nr-star-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+    display: block;
+}
+
+    .nr-star-fill .nr-star-svg {
+        fill: var(--nr-star);
+    }
 
 .nr-meta {
     display: flex;
