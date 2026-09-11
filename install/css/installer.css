@@ -1,44 +1,415 @@
-(function () {
-    'use strict';
+:root {
+    color-scheme: light;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 
-    var current = document.currentScript;
-    if (!current) return;
+* {
+    box-sizing: border-box;
+}
 
-    var baseUrl = current.src.replace(/\/js\/embed\.js(?:\?.*)?$/, "");
-    var cssUrl = baseUrl + '/css/ninjareviews.css';
-    var widgetScriptUrl = baseUrl + '/js/ninjareviews.js';
-    var reviewsContainer = document.createElement('section');
-    reviewsContainer.className = 'ninjareviews';
-    current.parentNode.insertBefore(reviewsContainer, current.nextSibling);
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #f5f7fb;
+    color: #172033;
+}
 
-    function loadScript(src, callback) {
-        var script = document.createElement('script');
-        script.src = src;
-        script.async = false;
-        script.onload = callback;
-        script.onerror = function () {
-            console.error('[NinjaReviews] Errore nel caricamento dello script:', src);
-        };
-        document.head.appendChild(script);
+.nr-installer {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+}
+
+.nr-installer-card {
+    width: min(680px, 100%);
+    background: #fff;
+    border: 1px solid #e4e8ef;
+    border-radius: 18px;
+    padding: 34px;
+    box-shadow: 0 14px 45px rgba(23, 32, 51, .08);
+}
+
+.nr-installer-logo {
+    display: inline-block;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -.03em;
+    margin-bottom: 20px;
+}
+
+.nr-installer h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+    letter-spacing: -.04em;
+}
+
+.nr-installer-intro {
+    margin: 0 0 30px;
+    color: #667085;
+}
+
+.nr-step {
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    gap: 14px;
+    margin: 0 0 24px;
+}
+
+.nr-step-number {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #172033;
+    color: #fff;
+    font-weight: 700;
+}
+
+.nr-step h2 {
+    margin: 1px 0 5px;
+    font-size: 17px;
+}
+
+.nr-step p {
+    margin: 0 0 11px;
+    color: #667085;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.nr-step input {
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid #d7dce5;
+    border-radius: 10px;
+    padding: 0 13px;
+    font: inherit;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+    .nr-step input:focus {
+        border-color: #667085;
+        box-shadow: 0 0 0 3px rgba(102, 112, 133, .12);
     }
 
-    function loadCss() {
-        if (document.querySelector('link[data-ninjareviews-css]')) return;
-        var link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = cssUrl;
-        link.setAttribute('data-ninjareviews-css', 'true');
-        document.head.appendChild(link);
-    }
-    loadCss();
-    loadScript(widgetScriptUrl, function () {
-        console.log('[NinjaReviews] ninjareviews.js caricato');
-        console.log('[NinjaReviews] NinjaReviews:', window.NinjaReviews);
+.nr-installer-button,
+.nr-select-button {
+    border: 0;
+    border-radius: 10px;
+    min-height: 46px;
+    padding: 0 18px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
 
-        if (window.NinjaReviews && typeof window.NinjaReviews.init === 'function') {
-            window.NinjaReviews.init();
-        } else {
-            console.error('[NinjaReviews] NinjaReviews.init non disponibile');
-        }
-    });
-}());
+.nr-installer-button {
+    width: 100%;
+    background: #172033;
+    color: #fff;
+}
+
+    .nr-installer-button:disabled,
+    .nr-select-button:disabled {
+        opacity: .55;
+        cursor: wait;
+    }
+
+.nr-message {
+    display: none;
+    margin-top: 18px;
+    padding: 13px 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+    .nr-message.is-visible {
+        display: block;
+    }
+
+.nr-message-error {
+    background: #fff0f0;
+    color: #9b1c1c;
+}
+
+.nr-message-success {
+    background: #edf9f0;
+    color: #176b35;
+}
+
+.nr-message-info {
+    background: #eef4ff;
+    color: #244c91;
+}
+
+.nr-results {
+    display: grid;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.nr-place-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 18px;
+    border: 1px solid #e0e5ed;
+    border-radius: 13px;
+    background: #fbfcfe;
+}
+
+.nr-place-content {
+    min-width: 0;
+}
+
+.nr-place-card h3 {
+    margin: 0 0 5px;
+    font-size: 17px;
+}
+
+.nr-place-card p {
+    margin: 0 0 8px;
+    color: #667085;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.nr-place-rating {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.nr-select-button {
+    flex: 0 0 auto;
+    background: #172033;
+    color: #fff;
+}
+
+.nr-install-success {
+    text-align: center;
+    padding: 24px 10px 8px;
+}
+
+.nr-success-icon {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #edf9f0;
+    color: #176b35;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.nr-install-success h2 {
+    margin: 0 0 8px;
+    font-size: 23px;
+}
+
+.nr-install-success p {
+    margin: 6px 0;
+    color: #667085;
+    line-height: 1.5;
+}
+
+.nr-small {
+    font-size: 13px;
+}
+
+code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .92em;
+}
+
+
+.nr-code-wrapper {
+    margin-top: 18px;
+    border: 1px solid #d9dee7;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f7f8fa;
+}
+
+.nr-code-label {
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: #667085;
+    border-bottom: 1px solid #d9dee7;
+}
+
+.nr-embed-code {
+    margin: 18px 0 12px;
+    padding: 14px;
+    border: 1px solid #d7dce2;
+    border-radius: 10px;
+    background: #f7f8fa;
+    color: #20252b;
+    font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+
+
+.nr-copy-button {
+    width: auto;
+    min-width: 140px;
+}
+
+.nr-copy-status {
+    min-height: 20px;
+    margin: 10px 0 0;
+    font-size: 13px;
+}
+
+
+.nr-system-check {
+    margin: 0 0 28px;
+    padding: 18px;
+    background: #f6f6f6;
+    border: 1px solid #e4e8ef;
+    border-radius: 15px;
+}
+
+.nr-system-check-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+    .nr-system-check-header h2 {
+        margin: 0 0 5px;
+        font-size: 17px;
+    }
+
+    .nr-system-check-header p {
+        margin: 0;
+        color: #667085;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+.nr-system-check-status {
+    flex: 0 0 auto;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #eef4ff;
+    color: #244c91;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+    .nr-system-check-status.is-ok {
+        background: #edf9f0;
+        color: #176b35;
+    }
+
+    .nr-system-check-status.is-error {
+        background: #fff0f0;
+        color: #9b1c1c;
+    }
+
+.nr-system-check-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.nr-system-check-item {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 9px;
+    align-items: center;
+    padding: 10px 11px;
+    border-radius: 9px;
+    background: #fff;
+    border: 1px solid #e7eaf0;
+}
+
+.nr-system-check-icon {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.nr-system-check-item.is-ok .nr-system-check-icon {
+    background: #edf9f0;
+    color: #176b35;
+}
+
+.nr-system-check-item.is-error .nr-system-check-icon {
+    background: #fff0f0;
+    color: #9b1c1c;
+}
+
+.nr-system-check-item strong,
+.nr-system-check-item span:not(.nr-system-check-icon) {
+    display: block;
+}
+
+.nr-system-check-item strong {
+    font-size: 14px;
+}
+
+.nr-system-check-item span:not(.nr-system-check-icon) {
+    margin-top: 2px;
+    color: #667085;
+    font-size: 12px;
+}
+
+.nr-system-check-message {
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+    .nr-system-check-message.is-ok {
+        color: #176b35;
+    }
+
+    .nr-system-check-message.is-error {
+        color: #9b1c1c;
+    }
+
+.nr-install-config.is-disabled {
+    opacity: .55;
+}
+
+@media (max-width: 620px) {
+
+    .nr-system-check-header {
+        flex-direction: column;
+    }
+
+    .nr-installer-card {
+        padding: 25px 20px;
+        border-radius: 14px;
+    }
+
+    .nr-installer h1 {
+        font-size: 26px;
+    }
+
+    .nr-place-card {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .nr-select-button {
+        width: 100%;
+    }
+}

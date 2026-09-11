@@ -1,5 +1,4 @@
-/* NinjaReviews frontend widget. */
-(function () {
+(function (window, document) {
     'use strict';
 
     const DEFAULTS = {
@@ -17,272 +16,256 @@
         showGoogleLink: true
     };
 
-    function mergeOptions(customOptions) {
-        return Object.assign({}, DEFAULTS, customOptions || {});
-    }
-
     function escapeHtml(value) {
-        return String(value ?? '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : String(value);
+        return div.innerHTML;
     }
 
     function safeUrl(value) {
+        if (!value) return '';
         try {
-            const url = new URL(String(value || ''), window.location.href);
-            if (url.protocol === 'http:' || url.protocol === 'https:') return url.href;
-        } catch (error) {
-            return '';
-        }
+            const url = new URL(value, window.location.href);
+            if (url.protocol === 'https:' || url.protocol === 'http:') {
+                return url.href;
+            }
+        } catch (_) {}
         return '';
     }
 
-    function createStars(rating) {
-        const value = Math.max(0, Math.min(5, Number(rating) || 0));
-        return '★'.repeat(Math.round(value)) + '☆'.repeat(5 - Math.round(value));
+    function stars(rating) {
+        const n = Math.max(0, Math.min(5, Number(rating) || 0));
+        let html = '';
+        for (let i = 0; i < n; i++) {
+            html += '<span class="nr-star" aria-hidden="true">⭐</span>';
+        }
+        return html;
     }
 
-    function getInitials(name) {
-        const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
-        if (!parts.length) return '?';
-        return parts.slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join('');
-    }
-
-    function renderReview(review, options) {
-        const authorName = escapeHtml(review.author_name || 'Google user');
+    function card(review, settings) {
+        const authorName = escapeHtml(review.author_name);
+        const text = escapeHtml(review.text);
+        const photo = safeUrl(review.author_photo);
         const authorUrl = safeUrl(review.author_url);
-        const authorPhoto = safeUrl(review.author_photo);
         const reviewUrl = safeUrl(review.review_url);
-        const date = escapeHtml(review.relative_time || review.time || '');
-        const text = escapeHtml(review.text || '');
-        const rating = Number(review.rating) || 0;
 
-        const photoHtml = options.showAuthorPhoto
-            ? (authorPhoto
-                ? `<img class="ninjareviews__author-photo" src="${escapeHtml(authorPhoto)}" alt="${authorName}" loading="lazy" referrerpolicy="no-referrer">`
-                : `<span class="ninjareviews__author-photo ninjareviews__author-photo--fallback" aria-hidden="true">${escapeHtml(getInitials(review.author_name))}</span>`)
+        const photoHtml = settings.showAuthorPhoto && photo
+            ? '<img class="nr-author-photo" src="' + escapeHtml(photo) +
+              '" alt="Foto di ' + authorName + '" loading="lazy">'
             : '';
 
-        const nameHtml = authorUrl
-            ? `<a href="${escapeHtml(authorUrl)}" target="_blank" rel="noopener noreferrer">${authorName}</a>`
-            : `<span>${authorName}</span>`;
+        const authorNameHtml = authorUrl
+            ? '<a href="' + escapeHtml(authorUrl) + '" target="_blank" rel="noopener noreferrer">' +
+              authorName + '</a>'
+            : '<span>' + authorName + '</span>';
 
-        const googleLinkHtml = options.showGoogleLink && reviewUrl
-            ? `<a class="ninjareviews__google-link" href="${escapeHtml(reviewUrl)}" target="_blank" rel="noopener noreferrer">Leggi su Google</a>`
+        const googleLinkHtml = settings.showGoogleLink && reviewUrl
+            ? '<a class="nr-google-link" href="' + escapeHtml(reviewUrl) +
+              '" target="_blank" rel="noopener noreferrer">Leggi su Google</a>'
             : '';
 
-        const dateHtml = options.showDate && date
-            ? `<time class="ninjareviews__date">${date}</time>`
+        const dateHtml = settings.showDate && review.relative_time
+            ? '<span class="nr-review-date">' + escapeHtml(review.relative_time) + '</span>'
             : '';
 
-        return `
-            <article class="ninjareviews__card">
-                <header class="ninjareviews__header">
-                    ${photoHtml}
-                    <div class="ninjareviews__author">
-                        <div class="ninjareviews__author-name">${nameHtml}</div>
-                        <div class="ninjareviews__rating" aria-label="Valutazione: ${rating} su 5">${createStars(rating)}</div>
-                    </div>
-                </header>
-                <div class="ninjareviews__meta">${dateHtml}</div>
-                <p class="ninjareviews__text">${text}</p>
-                ${googleLinkHtml}
-            </article>`;
+        return '' +
+            '<article class="nr-slide">' +
+              '<div class="nr-card">' +
+                '<div class="nr-quote" aria-hidden="true">&#8220;</div>' +
+                '<div class="nr-review-text">' +
+                  '<p>' + text + '</p>' +
+                '</div>' +
+                '<div class="nr-footer">' +
+                  '<div class="nr-author">' +
+                    '<div class="nr-author-photo-wrap">' + photoHtml + '</div>' +
+                    '<div class="nr-author-info">' +
+                      '<div class="nr-author-name">' + authorNameHtml + '</div>' +
+                      '<div class="nr-rating" aria-label="' + escapeHtml(review.rating) + ' stelle">' +
+                        stars(review.rating) +
+                      '</div>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="nr-meta">' + dateHtml + googleLinkHtml + '</div>' +
+                '</div>' +
+              '</div>' +
+            '</article>';
     }
 
-    async function loadReviews(apiUrl) {
-        const response = await fetch(apiUrl, {
-            method: 'GET',
-            cache: 'no-store',
-            credentials: 'omit',
-            headers: { Accept: 'application/json' }
-        });
-
-        if (!response.ok) {
-            throw new Error(`NinjaReviews API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (!data || data.success !== true || !Array.isArray(data.reviews)) {
-            throw new Error('NinjaReviews returned an invalid response.');
-        }
-
-        return data.reviews;
-    }
-
-    function resolveElements(root, selector) {
-        if (!root) return [];
-        if (typeof selector === 'string') {
-            if (root.matches && root.matches(selector)) return [root];
-            return Array.from(root.querySelectorAll(selector));
-        }
-        return [];
-    }
-
-    function createSlider(container, reviews, options) {
-        if (!reviews.length) {
-            container.innerHTML = '<p class="ninjareviews__empty">Nessuna recensione disponibile.</p>';
-            return;
-        }
-
-        container.innerHTML = `
-            <div class="ninjareviews__slider" data-ninjareviews-slider>
-                <button class="ninjareviews__arrow ninjareviews__arrow--prev" type="button" aria-label="Recensioni precedenti">‹</button>
-                <div class="ninjareviews__viewport">
-                    <div class="ninjareviews__track"></div>
-                </div>
-                <button class="ninjareviews__arrow ninjareviews__arrow--next" type="button" aria-label="Recensioni successive">›</button>
-                <div class="ninjareviews__dots" role="tablist" aria-label="Pagine recensioni"></div>
-                <div class="ninjareviews__attribution">Recensioni da Google</div>
-            </div>`;
-
-        const slider = container.querySelector('[data-ninjareviews-slider]');
-        const viewport = slider.querySelector('.ninjareviews__viewport');
-        const track = slider.querySelector('.ninjareviews__track');
-        const dots = slider.querySelector('.ninjareviews__dots');
-        const prev = slider.querySelector('.ninjareviews__arrow--prev');
-        const next = slider.querySelector('.ninjareviews__arrow--next');
-
-        track.innerHTML = reviews.map((review) => renderReview(review, options)).join('');
-
-        let index = 0;
-        let perView = options.slidesToShow;
+    function createWidget(container, userOptions) {
+        const settings = Object.assign({}, DEFAULTS, userOptions || {});
+        let currentIndex = 0;
         let timer = null;
-        let startX = null;
+        let touchStartX = 0;
+        let touchStartY = 0;
 
-        function updatePerView() {
-            perView = window.innerWidth <= options.responsiveBreakpoint
-                ? options.mobileSlidesToShow
-                : options.slidesToShow;
-            perView = Math.max(1, Math.min(perView, reviews.length));
+        container.classList.add('nr-widget');
+        container.innerHTML =
+            '<div class="nr-loading" role="status">Caricamento recensioni…</div>';
+
+        function getSlides() {
+            return Array.from(container.querySelectorAll('.nr-slide'));
         }
 
-        function pageCount() {
-            return Math.max(1, Math.ceil(reviews.length / perView));
+        function slidesToShow() {
+            return window.innerWidth <= settings.responsiveBreakpoint
+                ? settings.mobileSlidesToShow
+                : settings.slidesToShow;
         }
 
         function maxIndex() {
-            return Math.max(0, reviews.length - perView);
-        }
-
-        function renderDots() {
-            dots.innerHTML = '';
-            for (let i = 0; i < pageCount(); i += 1) {
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'ninjareviews__dot';
-                button.setAttribute('aria-label', `Vai alla pagina ${i + 1}`);
-                button.addEventListener('click', () => goTo(i * perView));
-                dots.appendChild(button);
-            }
+            return Math.max(getSlides().length - slidesToShow(), 0);
         }
 
         function update() {
-            index = Math.max(0, Math.min(index, maxIndex()));
-            const offset = (100 / perView) * index;
-            track.style.transform = `translateX(-${offset}%)`;
-            const activePage = Math.floor(index / perView);
-            Array.from(dots.children).forEach((dot, dotIndex) => {
-                dot.classList.toggle('is-active', dotIndex === activePage);
+            const track = container.querySelector('.nr-track');
+            if (!track) return;
+
+            const slides = getSlides();
+            const max = maxIndex();
+
+            currentIndex = Math.max(0, Math.min(currentIndex, max));
+
+            const first = slides[0];
+            if (!first) return;
+
+            const width = first.getBoundingClientRect().width;
+            track.style.transform = 'translate3d(' + (-currentIndex * width) + 'px, 0, 0)';
+
+            container.querySelectorAll('.nr-dot').forEach(function (dot, index) {
+                dot.classList.toggle('is-active', index === currentIndex);
+                dot.setAttribute('aria-current', index === currentIndex ? 'true' : 'false');
             });
-            prev.disabled = index === 0;
-            next.disabled = index >= maxIndex();
         }
 
-        function goTo(nextIndex) {
-            index = nextIndex > maxIndex() ? 0 : nextIndex;
+        function next() {
+            currentIndex = currentIndex >= maxIndex() ? 0 : currentIndex + 1;
             update();
         }
 
-        function startAutoplay() {
-            if (!options.autoplay || reviews.length <= perView) return;
-            stopAutoplay();
-            timer = window.setInterval(() => goTo(index + perView), options.autoplayDelay);
+        function prev() {
+            currentIndex = currentIndex <= 0 ? maxIndex() : currentIndex - 1;
+            update();
         }
 
-        function stopAutoplay() {
-            if (timer !== null) {
-                window.clearInterval(timer);
-                timer = null;
+        function restartAutoplay() {
+            if (!settings.autoplay) return;
+            clearInterval(timer);
+            timer = setInterval(next, settings.autoplayDelay);
+        }
+
+        function render(reviews) {
+            const slidesHtml = reviews.map(function (review) {
+                return card(review, settings);
+            }).join('');
+
+            container.innerHTML =
+                '<div class="nr-viewport">' +
+                  '<div class="nr-track">' + slidesHtml + '</div>' +
+                  '<button class="nr-nav nr-prev" type="button" aria-label="Recensione precedente">' + '\u2039' + '</button>' +
+                  '<button class="nr-nav nr-next" type="button" aria-label="Recensione successiva">' + '\u203A' + '</button>' +
+                '</div>' +
+                '<div class="nr-dots" role="tablist" aria-label="Navigazione recensioni"></div>' +
+                '<div class="nr-attribution">Recensioni da Google</div>';
+
+            const dots = container.querySelector('.nr-dots');
+            const count = maxIndex() + 1;
+
+            for (let i = 0; i < count; i++) {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.className = 'nr-dot' + (i === 0 ? ' is-active' : '');
+                dot.setAttribute('aria-label', 'Vai alla recensione ' + (i + 1));
+                dot.addEventListener('click', function () {
+                    currentIndex = i;
+                    update();
+                    restartAutoplay();
+                });
+                dots.appendChild(dot);
             }
+
+            container.querySelector('.nr-prev').addEventListener('click', function () {
+                prev();
+                restartAutoplay();
+            });
+
+            container.querySelector('.nr-next').addEventListener('click', function () {
+                next();
+                restartAutoplay();
+            });
+
+            if (settings.swipeEnabled) {
+                const viewport = container.querySelector('.nr-viewport');
+
+                viewport.addEventListener('touchstart', function (event) {
+                    const touch = event.changedTouches[0];
+                    touchStartX = touch.clientX;
+                    touchStartY = touch.clientY;
+                }, { passive: true });
+
+                viewport.addEventListener('touchend', function (event) {
+                    const touch = event.changedTouches[0];
+                    const diffX = touch.clientX - touchStartX;
+                    const diffY = touch.clientY - touchStartY;
+
+                    if (Math.abs(diffX) < settings.swipeThreshold ||
+                        Math.abs(diffY) > Math.abs(diffX)) {
+                        return;
+                    }
+
+                    diffX > 0 ? prev() : next();
+                    restartAutoplay();
+                }, { passive: true });
+            }
+
+            container.addEventListener('mouseenter', function () {
+                clearInterval(timer);
+            });
+
+            container.addEventListener('mouseleave', restartAutoplay);
+
+            window.addEventListener('resize', update);
+            update();
+            restartAutoplay();
         }
 
-        prev.addEventListener('click', () => {
-            index = index - perView < 0 ? maxIndex() : index - perView;
-            update();
-        });
-        next.addEventListener('click', () => goTo(index + perView));
+        function showError(message) {
+            container.innerHTML =
+                '<div class="nr-error" role="alert">' +
+                escapeHtml(message || 'Impossibile caricare le recensioni.') +
+                '</div>';
+        }
 
-        if (options.swipeEnabled) {
-            viewport.addEventListener('touchstart', (event) => {
-                startX = event.touches[0]?.clientX ?? null;
-                stopAutoplay();
-            }, { passive: true });
-            viewport.addEventListener('touchend', (event) => {
-                if (startX === null) return;
-                const endX = event.changedTouches[0]?.clientX ?? startX;
-                const delta = endX - startX;
-                startX = null;
-                if (Math.abs(delta) >= options.swipeThreshold) {
-                    if (delta < 0) next.click();
-                    else prev.click();
+        fetch(settings.apiUrl, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(function (response) {
+            return response.json().then(function (data) {
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error && data.error.message
+                        ? data.error.message
+                        : 'Errore nel caricamento delle recensioni.');
                 }
-                startAutoplay();
-            }, { passive: true });
-        }
-
-        slider.addEventListener('mouseenter', stopAutoplay);
-        slider.addEventListener('mouseleave', startAutoplay);
-        window.addEventListener('resize', () => {
-            const oldPerView = perView;
-            updatePerView();
-            if (oldPerView !== perView) {
-                renderDots();
-                index = Math.floor(index / perView) * perView;
-                update();
-                startAutoplay();
-            }
+                return data;
+            });
+        })
+        .then(function (data) {
+            render(Array.isArray(data.reviews) ? data.reviews : []);
+        })
+        .catch(function (error) {
+            console.error('[NinjaReviews]', error);
+            showError('Non è stato possibile caricare le recensioni.');
         });
-
-        updatePerView();
-        renderDots();
-        update();
-        startAutoplay();
-    }
-
-    async function init(element, customOptions) {
-        const options = mergeOptions(customOptions);
-        const containers = typeof element === 'string'
-            ? Array.from(document.querySelectorAll(element))
-            : (element ? [element] : resolveElements(document, options.selector));
-
-        await Promise.all(containers.map(async (container) => {
-            try {
-                const apiUrl = container.dataset.apiUrl || options.apiUrl;
-                const reviews = await loadReviews(apiUrl);
-                createSlider(container, reviews, options);
-            } catch (error) {
-                console.error('[NinjaReviews]', error);
-                container.innerHTML = '<p class="ninjareviews__error">Non è stato possibile caricare le recensioni.</p>';
-            }
-        }));
     }
 
     window.NinjaReviews = {
-        init,
-        defaults: Object.assign({}, DEFAULTS)
+        init: function (options) {
+            const settings = Object.assign({}, DEFAULTS, options || {});
+            const elements = document.querySelectorAll(settings.selector);
+
+            elements.forEach(function (element) {
+                createWidget(element, settings);
+            });
+        }
     };
-
-    function autoInit() {
-        init();
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', autoInit, { once: true });
-    } else {
-        autoInit();
-    }
-})();
+})(window, document);
