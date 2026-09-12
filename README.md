@@ -86,7 +86,7 @@ Found a bug? Have an idea? Want to add support for another review platform? See 
 
 ## Support the project
 
-NinjaReviews is free, self-hosted, and has no paid tier. If it saves you time, you're welcome to [buy the maintainer a coffee](#) — never expected, always appreciated.
+NinjaReviews is free, self-hosted, and has no paid tier. If it saves you time, you're welcome to [buy the maintainer a coffee](buymeacoffee.com/hanamisoftware) — never expected, always appreciated.
 
 ## License
 
