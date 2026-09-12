@@ -97,7 +97,7 @@ function fetchPlaceData(string $url, string $apiKey): array
             throw new RuntimeException('Google ha temporaneamente limitato le richieste.');
         }
         if ($httpStatus === 401 || $httpStatus === 403) {
-            throw new RuntimeException('La Google API Key non Ã¨ autorizzata.');
+            throw new RuntimeException('La Google API Key non è autorizzata.');
         }
         throw new RuntimeException('Google Places API non ha accettato la richiesta.');
     }
@@ -146,7 +146,7 @@ try {
 } catch (Throwable $e) {
     respond(502, [
         'success' => false,
-        'error' => ['message' => 'Non Ã¨ stato possibile caricare le recensioni.'],
+        'error' => ['message' => 'Non è stato possibile caricare le recensioni.'],
     ]);
 }
 

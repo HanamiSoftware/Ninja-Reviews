@@ -254,7 +254,7 @@ function resolveGoogleMapsUrl(string $url): array
         curl_close($ch);
 
         if ($location === '') {
-            return [false, '', 'Non riesco ad aprire il link Google Maps abbreviato. Usa il link completo dell\'attività .'];
+            return [false, '', 'Non riesco ad aprire il link Google Maps abbreviato. Usa il link completo dell\'attività.'];
         }
 
         $locationParts = parse_url($location);
@@ -295,7 +295,7 @@ function parseGoogleMapsUrl(string $url): array
         }
     }
 
-    return [false, '', '', 'Non riesco a ricavare il nome dell\'attività  da questo link. Usa il link completo della pagina Google Maps dell\'attività .'];
+    return [false, '', '', 'Non riesco a ricavare il nome dell\'attività da questo link. Usa il link completo della pagina Google Maps dell\'attività .'];
 }
 
 function normalizePlace(array $place): array
@@ -357,7 +357,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $place = normalizePlace($result);
             if ($place['id'] === '') {
-                jsonResponse(['success' => false, 'message' => 'Google non ha restituito un\'attività valida.'], 404);
+                jsonResponse(['success' => false, 'message' => 'Google non ha restituito un\'attivitÃ Â valida.'], 404);
             }
             $_SESSION['ninjareviews_install'] = ['api_key' => $apiKey, 'places' => [$place]];
             jsonResponse(['success' => true, 'places' => [$place], 'exact' => true]);
@@ -407,7 +407,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         if (!$selected) {
-            jsonResponse(['success' => false, 'message' => 'Attività selezionata non valida.'], 422);
+            jsonResponse(['success' => false, 'message' => 'AttivitÃ Â selezionata non valida.'], 422);
         }
 
         $origin = getRequestOrigin();
@@ -462,7 +462,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="nr-installer-card">
         <div class="nr-installer-logo">NinjaReviews</div>
         <h1>Configura NinjaReviews</h1>
-        <p class="nr-installer-intro">Collega la tua attività Google Maps in pochi passaggi.</p>
+        <p class="nr-installer-intro">Collega la tua attività su Google Maps in pochi passaggi.</p>
 
         <?php if ($installed): ?>
             <div class="nr-message nr-message-success is-visible">
@@ -488,7 +488,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div>
                     <h2>Google API Key</h2>
                     <p>Inserisci una API Key con Google Places API (New) abilitata.</p>
-                    <p class="nr-help-link"><a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener noreferrer">Non hai ancora una API Key? Crea un progetto e abilita Places API (New) →</a></p>
+                    <p class="nr-help-link"><a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener noreferrer">Non hai ancora una API Key? Crea un progetto e abilita Places API (New) â†’</a></p>
                     <input id="google_api_key" type="password" autocomplete="new-password" spellcheck="false" placeholder="AIza...">
                 </div>
             </div>
@@ -497,7 +497,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span class="nr-step-number">2</span>
                 <div>
                     <h2>Link Google Maps</h2>
-                    <p>Incolla il link della pagina della tua attivitÃ  su Google Maps.</p>
+                    <p>Incolla il link della pagina della tua attività su Google Maps.</p>
                     <input id="google_maps_url" type="url" autocomplete="off" placeholder="https://www.google.com/maps/place/...">
                 </div>
             </div>
@@ -594,15 +594,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     const renderPlaces = places => {
         results.innerHTML = places.map(place => {
-            const rating = place.rating ? '⭐' + escapeHtml(Number(place.rating).toFixed(1)) : 'Rating non disponibile';
+            const rating = place.rating ? 'â­' + escapeHtml(Number(place.rating).toFixed(1)) : 'Rating non disponibile';
             return `<article class="nr-place-card">
                 <div class="nr-place-content">
-                    <h3>${escapeHtml(place.name || 'Attività ')}</h3>
+                    <h3>${escapeHtml(place.name || 'Attività')}</h3>
                     <p>${escapeHtml(place.address || 'Indirizzo non disponibile')}</p>
                     <div class="nr-place-rating">${rating}</div>
                 </div>
                 <button type="button" class="nr-select-button" data-place-id="${escapeHtml(place.id)}">
-                    ${places.length === 1 ? 'Conferma attività' : 'Seleziona'}
+                    ${places.length === 1 ? 'Conferma attività ' : 'Seleziona'}
                 </button>
             </article>`;
         }).join('');
@@ -622,14 +622,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             results.innerHTML = `<div class="nr-install-success">
                 <div class="nr-success-icon">&#10003;</div>
                 <h2>Installazione completata</h2>
-                <p><strong>${escapeHtml(data.place.name)}</strong> è stata configurata correttamente.</p>
+                <p><strong>${escapeHtml(data.place.name)}</strong> Ã¨ stata configurata correttamente.</p>
                 <p class="nr-small">Per sicurezza, elimina ora la cartella <code>install/</code> dal server.</p>
                 <h3>Codice da inserire nel sito</h3>
                 <p id="nr-embed-code" class="nr-embed-code">${escapeHtml(data.embed)}</p>
                 <button type="button" id="nr-copy-code" class="nr-installer-button nr-copy-button">Copia codice</button>
                 <p id="nr-copy-status" class="nr-copy-status" aria-live="polite"></p>
             </div>`;
-            showMessage('NinjaReviews è pronto.', 'success');
+            showMessage('NinjaReviews Ã¨ pronto.', 'success');
             searchButton.style.display = 'none';
             document.getElementById('nr-copy-code').addEventListener('click', async () => {
                 const code = document.getElementById('nr-embed-code').textContent;
