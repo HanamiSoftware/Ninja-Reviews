@@ -70,7 +70,7 @@ function fetchPlaceData(string $url, string $apiKey): array
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
             'X-Goog-Api-Key: ' . $apiKey,
-            'X-Goog-FieldMask: id,displayName,rating,reviews,googleMapsUri',
+            'X-Goog-FieldMask: id,displayName,formattedAddress,rating,reviews,googleMapsUri',
             'Accept-Language: it',
             'User-Agent: NinjaReviews/1.0',
         ],
@@ -97,7 +97,7 @@ function fetchPlaceData(string $url, string $apiKey): array
             throw new RuntimeException('Google ha temporaneamente limitato le richieste.');
         }
         if ($httpStatus === 401 || $httpStatus === 403) {
-            throw new RuntimeException('La Google API Key non è autorizzata.');
+            throw new RuntimeException('La Google API Key non Ã¨ autorizzata.');
         }
         throw new RuntimeException('Google Places API non ha accettato la richiesta.');
     }
@@ -146,7 +146,7 @@ try {
 } catch (Throwable $e) {
     respond(502, [
         'success' => false,
-        'error' => ['message' => 'Non è stato possibile caricare le recensioni.'],
+        'error' => ['message' => 'Non Ã¨ stato possibile caricare le recensioni.'],
     ]);
 }
 
@@ -158,11 +158,14 @@ if (!is_array($rawReviews) || count($rawReviews) === 0) {
         'error' => ['message' => 'No reviews found.'],
     ]);
 }
-
+$businessName = $placeData['displayName']['text'] ?? 'Unknown Business';
+$formattedAddress = $placeData['formattedAddress'] ?? 'Unknown Address';
 $reviews = array_map('normalizeReview', $rawReviews);
 
 respond(200, [
     'success' => true,
     'count' => count($reviews),
+    'business_name' => $businessName,
+    'formatted_address' => $formattedAddress,
     'reviews' => $reviews,
 ]);
