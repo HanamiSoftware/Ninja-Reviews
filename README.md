@@ -1,3 +1,4 @@
+![NinjaReviews Logo](img/ninja_reviews_transparent_horizontal.png)
 # NinjaReviews
 
 **One line. Done.**
