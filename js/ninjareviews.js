@@ -1,9 +1,14 @@
 (function (window, document) {
     'use strict';
 
+    var currentScript = document.currentScript;
+    var scriptBaseUrl = currentScript
+        ? currentScript.src.replace(/\/js\/ninjareviews\.js(?:\?.*)?$/, "")
+        : null;
+
     const DEFAULTS = {
         selector: '.ninjareviews',
-        apiUrl: './reviews.php',
+        apiUrl: scriptBaseUrl ? scriptBaseUrl + '/reviews.php' : './reviews.php',
         slidesToShow: 3,
         mobileSlidesToShow: 1,
         responsiveBreakpoint: 768,
@@ -115,7 +120,7 @@
 
         container.classList.add('nr-widget');
         container.innerHTML =
-            '<div class="nr-loading" role="status">Caricamento recensioniâ€¦</div>';
+            '<div class="nr-loading" role="status">Caricamento recensioni...</div>';
 
         function getSlides() {
             return Array.from(container.querySelectorAll('.nr-slide'));
@@ -269,7 +274,7 @@
         })
         .catch(function (error) {
             console.error('[NinjaReviews]', error);
-            showError('Non Ã¨ stato possibile caricare le recensioni.');
+            showError('Non ÃƒÆ’Ã‚Â¨ stato possibile caricare le recensioni.');
         });
     }
 

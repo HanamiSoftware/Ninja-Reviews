@@ -7,6 +7,7 @@
     var baseUrl = current.src.replace(/\/js\/embed\.js(?:\?.*)?$/, "");
     var cssUrl = baseUrl + '/css/ninjareviews.css';
     var widgetScriptUrl = baseUrl + '/js/ninjareviews.js';
+    var apiUrl = current.getAttribute('data-api-url') || (baseUrl + '/reviews.php');
     var reviewsContainer = document.createElement('section');
     reviewsContainer.className = 'ninjareviews';
     current.parentNode.insertBefore(reviewsContainer, current.nextSibling);
@@ -36,7 +37,7 @@
         console.log('[NinjaReviews] NinjaReviews:', window.NinjaReviews);
 
         if (window.NinjaReviews && typeof window.NinjaReviews.init === 'function') {
-            window.NinjaReviews.init();
+            window.NinjaReviews.init({ apiUrl: apiUrl });
         } else {
             console.error('[NinjaReviews] NinjaReviews.init non disponibile');
         }
