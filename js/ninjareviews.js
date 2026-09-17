@@ -34,7 +34,7 @@
             if (url.protocol === 'https:' || url.protocol === 'http:') {
                 return url.href;
             }
-        } catch (_) {}
+        } catch (_) { }
         return '';
     }
 
@@ -71,17 +71,17 @@
 
         const photoHtml = settings.showAuthorPhoto && photo
             ? '<img class="nr-author-photo" src="' + escapeHtml(photo) +
-              '" alt="Foto di ' + authorName + '" loading="lazy">'
+            '" alt="Foto di ' + authorName + '" loading="lazy">'
             : '';
 
         const authorNameHtml = authorUrl
             ? '<a href="' + escapeHtml(authorUrl) + '" target="_blank" rel="noopener noreferrer">' +
-              authorName + '</a>'
+            authorName + '</a>'
             : '<span>' + authorName + '</span>';
 
         const googleLinkHtml = settings.showGoogleLink && reviewUrl
             ? '<a class="nr-google-link" href="' + escapeHtml(reviewUrl) +
-              '" target="_blank" rel="noopener noreferrer">Leggi su Google</a>'
+            '" target="_blank" rel="noopener noreferrer">Leggi su Google</a>'
             : '';
 
         const dateHtml = settings.showDate && review.relative_time
@@ -90,24 +90,24 @@
 
         return '' +
             '<article class="nr-slide">' +
-              '<div class="nr-card">' +
-                '<div class="nr-quote" aria-hidden="true">&#8220;</div>' +
-                '<div class="nr-review-text">' +
-                  '<p>' + text + '</p>' +
-                '</div>' +
-                '<div class="nr-footer">' +
-                  '<div class="nr-author">' +
-                    '<div class="nr-author-photo-wrap">' + photoHtml + '</div>' +
-                    '<div class="nr-author-info">' +
-                      '<div class="nr-author-name">' + authorNameHtml + '</div>' +
-                      '<div class="nr-rating" aria-label="' + escapeHtml(review.rating) + ' stelle">' +
-                        stars(review.rating) +
-                      '</div>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="nr-meta">' + dateHtml + googleLinkHtml + '</div>' +
-                '</div>' +
-              '</div>' +
+            '<div class="nr-card">' +
+            '<div class="nr-quote" aria-hidden="true">&#8220;</div>' +
+            '<div class="nr-review-text">' +
+            '<p>' + text + '</p>' +
+            '</div>' +
+            '<div class="nr-footer">' +
+            '<div class="nr-author">' +
+            '<div class="nr-author-photo-wrap">' + photoHtml + '</div>' +
+            '<div class="nr-author-info">' +
+            '<div class="nr-author-name">' + authorNameHtml + '</div>' +
+            '<div class="nr-rating" aria-label="' + escapeHtml(review.rating) + ' stelle">' +
+            stars(review.rating) +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '<div class="nr-meta">' + dateHtml + googleLinkHtml + '</div>' +
+            '</div>' +
+            '</div>' +
             '</article>';
     }
 
@@ -117,7 +117,7 @@
         let timer = null;
         let touchStartX = 0;
         let touchStartY = 0;
-
+        
         container.classList.add('nr-widget');
         container.innerHTML =
             '<div class="nr-loading" role="status">Caricamento recensioni...</div>';
@@ -180,9 +180,9 @@
 
             container.innerHTML =
                 '<div class="nr-viewport">' +
-                  '<div class="nr-track">' + slidesHtml + '</div>' +
-                  '<button class="nr-nav nr-prev" type="button" aria-label="Recensione precedente">' + '\u2039' + '</button>' +
-                  '<button class="nr-nav nr-next" type="button" aria-label="Recensione successiva">' + '\u203A' + '</button>' +
+                '<div class="nr-track">' + slidesHtml + '</div>' +
+                '<button class="nr-nav nr-prev" type="button" aria-label="Recensione precedente">' + '\u2039' + '</button>' +
+                '<button class="nr-nav nr-next" type="button" aria-label="Recensione successiva">' + '\u203A' + '</button>' +
                 '</div>' +
                 '<div class="nr-dots" role="tablist" aria-label="Navigazione recensioni"></div>' +
                 '<div class="nr-attribution">Recensioni da Google</div>';
@@ -255,28 +255,44 @@
                 '</div>';
         }
 
-        fetch(settings.apiUrl, {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' }
-        })
-        .then(function (response) {
-            return response.json().then(function (data) {
-                if (!response.ok || !data.success) {
-                    throw new Error(data.error && data.error.message
-                        ? data.error.message
-                        : 'Errore nel caricamento delle recensioni.');
+        function fetchReviews() {
+            fetch(settings.apiUrl, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            })
+                .then(function (response) {
+                    return response.json().then(function (data) {
+                        if (!response.ok || !data.success) {
+                            throw new Error(data.error && data.error.message
+                                ? data.error.message
+                                : 'Errore nel caricamento delle recensioni.');
+                        }
+                        return data;
+                    });
+                })
+                .then(function (data) {
+                    render(Array.isArray(data.reviews) ? data.reviews : []);
+                })
+                .catch(function (error) {
+                    console.error('[NinjaReviews]', error);
+                    showError('Non è stato possibile caricare le recensioni.');
+                });
+        }
+
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    const element = entry.target;
+                    observer.unobserve(element);
+                    fetchReviews();
                 }
-                return data;
             });
-        })
-        .then(function (data) {
-            render(Array.isArray(data.reviews) ? data.reviews : []);
-        })
-        .catch(function (error) {
-            console.error('[NinjaReviews]', error);
-            showError('Non ÃƒÆ’Ã‚Â¨ stato possibile caricare le recensioni.');
-        });
+        }, { rootMargin: '200px 0px' });
+
+        observer.observe(container);
     }
+
+    
 
     window.NinjaReviews = {
         init: function (options) {
@@ -288,4 +304,5 @@
             });
         }
     };
+    
 })(window, document);
