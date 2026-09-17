@@ -1,3 +1,5 @@
+<img src="img/ninja_reviews_transparent_horizontal.png" width="150"/>
+
 # NinjaReviews
 
 **One line. Done.**
