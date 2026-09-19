@@ -13,3 +13,9 @@ jobs:
         run: |
           echo "Base: ${{ github.event.pull_request.base.ref }}"
           echo "Head: ${{ github.event.pull_request.head.ref }}"
+          if [ "${{ github.event.pull_request.base.ref }}" = "main" ] && [ "${{ github.event.pull_request.head.ref }}" != "dev" ]; then
+            echo "❌ Direct merge to main is not allowed."
+            exit 1
+          fi
+
+          echo "✅ Branch policy passed."
