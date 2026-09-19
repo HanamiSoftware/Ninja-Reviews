@@ -1,10 +1,12 @@
 <img src="img/ninja_reviews_transparent_horizontal.png" width="150"/>
 
 # Test Branch Protection Ruleset
+il test ha funzionato
 
 # NinjaReviews
 
 test dev ruleset
+proviamo a fare merge direttamente da feature su main
 
 **One line. Done.**
 
@@ -20,7 +22,17 @@ That's the entire integration. No jQuery, no Bootstrap, no build step.
 
 ## What it does
 
-- Pulls reviews directly from **Google Places API (New)** â€” no scraping, no stale cache.
+- Pulls reviews directly from **Google Places API (New)**  no scraping, no stale cache.
+- Renders a responsive, swipeable carousel: author, avatar, star rating, review text, date, and a link back to the original review.
+- Ships as plain, vanilla JavaScript and CSS. No frameworks required on your side.
+- Comes with a guided web installer no manual editing of config files needed.
+
+Google Reviews is the first source. NinjaReviews is architected to support other reputation platforms (Tripadvisor, Trustpilot, Facebook) over time Ã¢â‚¬â€ see [Roadmap](#roadmap).
+
+## Requirements
+
+- PHP **8.0 or higher** on your hosting (this is a hard requirement the installer and `reviews.php` will not run on older versions).
+- Pulls reviews directly from **Google Places API (New)**  no scraping, no stale cache.
 - Renders a responsive, swipeable carousel: author, avatar, star rating, review text, date, and a link back to the original review.
 - Ships as plain, vanilla JavaScript and CSS. No frameworks required on your side.
 - Comes with a guided web installer â€” no manual editing of config files needed.
@@ -29,7 +41,7 @@ Google Reviews is the first source. NinjaReviews is architected to support other
 
 ## Requirements
 
-- PHP **8.0 or higher** on your hosting (this is a hard requirement â€” the installer and `reviews.php` will not run on older versions).
+- PHP **8.0 or higher** on your hosting (this is a hard requirement  the installer and `reviews.php` will not run on older versions).
 - The `curl` and `json` PHP extensions (enabled by default on most hosting).
 - HTTPS on the domain where you install NinjaReviews.
 - A Google Cloud project with **Places API (New)** enabled and billing active, and an API key for it.
@@ -39,7 +51,7 @@ Google Reviews is the first source. NinjaReviews is architected to support other
 1. Upload the contents of this repository to your server (e.g. `yourdomain.com/ninjareviews/`).
 2. Open `https://yourdomain.com/ninjareviews/install/` in your browser.
 3. The installer checks your environment (PHP version, extensions, HTTPS, file permissions).
-4. Paste in a Google API key with Places API (New) enabled â€” no key yet? The installer links you straight to the right page in Google Cloud Console.
+4. Paste in a Google API key with Places API (New) enabled  no key yet? The installer links you straight to the right page in Google Cloud Console.
 5. Paste your business's Google Maps URL.
 6. Confirm the business the installer found.
 7. Copy the generated embed line into your site.
@@ -73,7 +85,7 @@ Star ratings render as SVG and support partial fills (e.g. `4.5`), not just whol
 
 ## Security notes
 
-- The Google API key is used server-side only and stored in `config.php` â€” never exposed to the browser.
+- The Google API key is used server-side only and stored in `config.php` never exposed to the browser.
 - `reviews.php` does not cache reviews; every widget load queries Google directly, and it never leaks Google's or cURL's internal error details to the client.
 - The installer enforces SSL certificate verification, a CSRF token on all POST requests, and HttpOnly + SameSite=Lax session cookies.
 - CORS is configured automatically for your server's origin during installation.
@@ -84,11 +96,11 @@ Star ratings render as SVG and support partial fills (e.g. `4.5`), not just whol
 ## Roadmap
 
 - Additional review sources beyond Google: Tripadvisor, Trustpilot, Facebook.
-- A **Managed** hosted option for people who don't want to run PHP themselves â€” not built yet, evaluating based on interest.
+- A **Managed** hosted option for people who don't want to run PHP themselves not built yet, evaluating based on interest.
 
 ## Contributing
 
-Found a bug? Have an idea? Want to add support for another review platform? See [CONTRIBUTING.md](CONTRIBUTING.md) â€” issues and pull requests are exactly how this project moves forward.
+Found a bug? Have an idea? Want to add support for another review platform? See [CONTRIBUTING.md](CONTRIBUTING.md)  issues and pull requests are exactly how this project moves forward.
 
 ## Support the project
 
