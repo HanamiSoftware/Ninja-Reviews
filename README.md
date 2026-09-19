@@ -6,6 +6,8 @@ vediamo se funziona per dev
 
 # NinjaReviews
 
+test dev ruleset
+
 **One line. Done.**
 
 NinjaReviews is a lightweight, dependency-free JavaScript widget that shows your real Google reviews on your website. Self-hosted, open source, free.
