@@ -12,7 +12,7 @@ Thanks for considering a contribution — this project is built in the open, and
 ## Workflow
 
 1. **Fork** the repository.
-2. **Branch** off `main` with a short, descriptive name (e.g. `fix/embed-api-url`, `feat/tripadvisor-source`).
+2. **Branch** off `dev` with a short, descriptive name (e.g. `fix/embed-api-url`, `feat/tripadvisor-source`).
 3. **Build** your change.
 4. Open a **Pull Request** describing what changed and why. Link the related issue if there is one.
 5. **Review** — expect discussion and requested changes before merging. That's normal, not a rejection.
