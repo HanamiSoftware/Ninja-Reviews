@@ -1,7 +1,8 @@
 <img src="img/ninja_reviews_transparent_horizontal.png" width="150"/>
 
 # Test Branch Protection Ruleset
-il test ha funzionato
+il test ha funzionato per main
+vediamo se funziona per dev
 
 # NinjaReviews
 
