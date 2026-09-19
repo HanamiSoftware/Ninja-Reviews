@@ -1,3 +1,21 @@
 name: Branch Policy
+
 on:
-  pull_request: 
+  pull_request:
+
+jobs:
+  check-branch-policy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check branch policy
+        run: |
+          echo "Base: ${{ github.event.pull_request.base.ref }}"
+          echo "Head: ${{ github.event.pull_request.head.ref }}"
+          if [ "${{ github.event.pull_request.base.ref }}" = "main" ] && [ "${{ github.event.pull_request.head.ref }}" != "dev" ]; then
+            echo "❌ Direct merge to main is not allowed."
+            exit 1
+          fi
+
+          echo "✅ Branch policy passed."
