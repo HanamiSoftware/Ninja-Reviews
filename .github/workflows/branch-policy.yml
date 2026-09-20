@@ -19,8 +19,8 @@ jobs:
           echo "Head: $HEAD"
 
           if [ "$BASE" = "main" ] && [ "$HEAD" != "dev" ]; then
-            echo "::error title=Invalid branch flow::PRs targeting main must originate from dev. Current flow: $HEAD -> $BASE"
+            echo "::error title=Invalid branch flow::..."
             exit 1
           fi
 
-          echo "Branch Policy Passed Successfully."
+       echo "::notice title=Branch Policy::Branch policy passed successfully."
