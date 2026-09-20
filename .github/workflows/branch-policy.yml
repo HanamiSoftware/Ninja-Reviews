@@ -9,6 +9,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Check branch policy
         run: |
           BASE="${{ github.event.pull_request.base.ref }}"
