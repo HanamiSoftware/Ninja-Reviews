@@ -11,11 +11,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check branch policy
         run: |
-          echo "Base: ${{ github.event.pull_request.base.ref }}"
-          echo "Head: ${{ github.event.pull_request.head.ref }}"
-          if [ "${{ github.event.pull_request.base.ref }}" = "main" ] && [ "${{ github.event.pull_request.head.ref }}" != "dev" ]; then
-            echo "❌ Direct merge to main is not allowed."
-            exit 1
-          fi
+          BASE="$   {{ github.event.pull_request.base.ref }}"
+          HEAD="${{ github.event.pull_request.head.ref }}"
 
-          echo "✅ Branch policy passed."
+    echo "Base: $BASE"
+    echo "Head: $HEAD"
+
+    if [ "$BASE" = "main" ] && [ "$HEAD" != "dev" ]; then
+      echo "::error title=Invalid branch flow::PRs targeting main must originate from dev. Current flow: $HEAD -> $BASE"
+      exit 1
+    fi
+
+    echo "Branch Policy Passed Successfully."
