@@ -9,17 +9,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Check branch policy
         run: |
-          BASE="$   {{ github.event.pull_request.base.ref }}"
+          BASE="${{ github.event.pull_request.base.ref }}"
           HEAD="${{ github.event.pull_request.head.ref }}"
 
-    echo "Base: $BASE"
-    echo "Head: $HEAD"
+          echo "Base: $BASE"
+          echo "Head: $HEAD"
 
-    if [ "$BASE" = "main" ] && [ "$HEAD" != "dev" ]; then
-      echo "::error title=Invalid branch flow::PRs targeting main must originate from dev. Current flow: $HEAD -> $BASE"
-      exit 1
-    fi
+          if [ "$BASE" = "main" ] && [ "$HEAD" != "dev" ]; then
+            echo "::error title=Invalid branch flow::PRs targeting main must originate from dev. Current flow: $HEAD -> $BASE"
+            exit 1
+          fi
 
-    echo "Branch Policy Passed Successfully."
+          echo "Branch Policy Passed Successfully."
