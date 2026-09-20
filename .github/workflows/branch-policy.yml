@@ -23,4 +23,4 @@ jobs:
             exit 1
           fi
 
-       echo "::notice title=Branch Policy::Branch policy passed successfully."
+          echo "::notice title=Branch Policy::Branch policy passed successfully."
