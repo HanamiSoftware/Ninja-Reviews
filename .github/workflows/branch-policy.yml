@@ -19,7 +19,7 @@ jobs:
           echo "Head: $HEAD"
 
           if [ "$BASE" = "main" ] && [ "$HEAD" != "dev" ]; then
-            echo "::error title=Invalid branch flow::..."
+            echo "::error title=Invalid branch flow::PRs targeting main must originate from dev. Current flow: $HEAD -> $BASE"
             exit 1
           fi
 
