@@ -22,12 +22,14 @@
     };
 
     function escapeHtml(value) {
+        // Reviews come from an external API; render user-generated text as text, never as markup.
         const div = document.createElement('div');
         div.textContent = value == null ? '' : String(value);
         return div.innerHTML;
     }
 
     function safeUrl(value) {
+        // Only navigable HTTP(S) URLs are accepted for provider links and author profiles.
         if (!value) return '';
         try {
             const url = new URL(value, window.location.href);
@@ -46,6 +48,7 @@
     }
 
     function stars(rating) {
+        // Render fractional ratings by clipping a filled star over an empty star.
         const value = Math.max(0, Math.min(5, Number(rating) || 0));
         let html = '';
         for (let i = 0; i < 5; i++) {
@@ -112,6 +115,7 @@
     }
 
     function createWidget(container, userOptions) {
+        // Each matching container owns its own carousel state and network request.
         const settings = Object.assign({}, DEFAULTS, userOptions || {});
         let currentIndex = 0;
         let timer = null;
@@ -133,6 +137,7 @@
         }
 
         function maxIndex() {
+            // The index is based on the number of visible slides, not the total slide count.
             return Math.max(getSlides().length - slidesToShow(), 0);
         }
 
@@ -148,6 +153,7 @@
             const first = slides[0];
             if (!first) return;
 
+            // Measure after rendering so the same code works with responsive slide widths.
             const width = first.getBoundingClientRect().width;
             track.style.transform = 'translate3d(' + (-currentIndex * width) + 'px, 0, 0)';
 
@@ -256,6 +262,7 @@
         }
 
         function fetchReviews() {
+            // Keep provider details behind the PHP endpoint; the browser receives the normalized contract.
             fetch(settings.apiUrl, {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' }
@@ -275,10 +282,11 @@
                 })
                 .catch(function (error) {
                     console.error('[NinjaReviews]', error);
-                    showError('Non è stato possibile caricare le recensioni.');
+                    showError('Non Ã¨ stato possibile caricare le recensioni.');
                 });
         }
 
+        // Delay the request until the widget is close to the viewport.
         const observer = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
@@ -296,6 +304,7 @@
 
     window.NinjaReviews = {
         init: function (options) {
+            // Initialization is idempotent at the API level: every matching element gets isolated state.
             const settings = Object.assign({}, DEFAULTS, options || {});
             const elements = document.querySelectorAll(settings.selector);
 
