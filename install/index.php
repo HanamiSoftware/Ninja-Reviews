@@ -13,6 +13,7 @@ session_start();
 $configFile = dirname(__DIR__) . '/config.php';
 $installedFile = __DIR__ . '/.installed';
 
+// The installer handles credentials, so apply browser security headers before rendering anything.
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('Referrer-Policy: no-referrer');
@@ -132,6 +133,7 @@ function getRequestOrigin(): string
 
 function getBaseUrl(): string
 {
+    // Derive the public application root so the installer can generate a copy-paste embed tag.
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
     $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/install/index.php'));
