@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 $config = require __DIR__ . '/config.php';
 
+// This endpoint is intentionally JSON-only and never caches reviews or configuration errors.
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('Pragma: no-cache');
@@ -13,6 +14,7 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $allowedOrigins = $config['allowed_origins'] ?? [];
 
+// A wildcard enables public embedding; otherwise reflect only an explicitly configured origin.
 if (in_array('*', $allowedOrigins, true)) {
     header('Access-Control-Allow-Origin: *');
 } elseif ($origin !== '' && in_array($origin, $allowedOrigins, true)) {
@@ -24,6 +26,7 @@ header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    // Browsers send this preflight request before a cross-origin GET.
     http_response_code(204);
     exit;
 }
@@ -52,6 +55,7 @@ $url = 'https://places.googleapis.com/v1/places/' . rawurlencode($placeId);
 
 function respond(int $statusCode, array $payload): never
 {
+    // Keep all success and error responses in the same JSON envelope for the widget client.
     http_response_code($statusCode);
     echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
@@ -59,6 +63,7 @@ function respond(int $statusCode, array $payload): never
 
 function fetchPlaceData(string $url, string $apiKey): array
 {
+    // Request only the fields used by the public response to reduce Google API cost and payload size.
     $ch = curl_init($url);
 
     curl_setopt_array($ch, [
@@ -97,7 +102,7 @@ function fetchPlaceData(string $url, string $apiKey): array
             throw new RuntimeException('Google ha temporaneamente limitato le richieste.');
         }
         if ($httpStatus === 401 || $httpStatus === 403) {
-            throw new RuntimeException('La Google API Key non è autorizzata.');
+            throw new RuntimeException('La Google API Key non Ã¨ autorizzata.');
         }
         throw new RuntimeException('Google Places API non ha accettato la richiesta.');
     }
@@ -107,6 +112,7 @@ function fetchPlaceData(string $url, string $apiKey): array
 
 function normalizeReview(array $review): array
 {
+    // Map Google's nested response to the stable, frontend-facing API contract.
     $author = trim((string)($review['authorAttribution']['displayName'] ?? ''));
     $photo = $review['authorAttribution']['photoUri'] ?? null;
     $authorUri = $review['authorAttribution']['uri'] ?? null;
@@ -134,6 +140,7 @@ function formatPublishTime(?string $publishTime): ?string
         return null;
     }
 
+    // A malformed provider timestamp must not make the whole review feed fail.
     try {
         return (new DateTimeImmutable($publishTime))->format('d/m/Y H:i');
     } catch (Throwable) {
@@ -146,12 +153,13 @@ try {
 } catch (Throwable $e) {
     respond(502, [
         'success' => false,
-        'error' => ['message' => 'Non è stato possibile caricare le recensioni.'],
+        'error' => ['message' => 'Non Ã¨ stato possibile caricare le recensioni.'],
     ]);
 }
 
 $rawReviews = $placeData['reviews'] ?? [];
 
+// Google may return a valid place without reviews; expose that state explicitly to consumers.
 if (!is_array($rawReviews) || count($rawReviews) === 0) {
     respond(404, [
         'success' => false,
