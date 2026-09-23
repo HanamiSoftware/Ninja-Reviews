@@ -21,7 +21,7 @@ That's the entire integration. No jQuery, no Bootstrap, no build step.
 - Ships as plain, vanilla JavaScript and CSS. No frameworks required on your side.
 - Comes with a guided web installer no manual editing of config files needed.
 
-Google Reviews is the first source. NinjaReviews is architected to support other reputation platforms (Tripadvisor, Trustpilot, Facebook) over time Ã¢â‚¬â€ see [Roadmap](#roadmap).
+Google Reviews is the first source. NinjaReviews is architected to support other reputation platforms (Tripadvisor, Trustpilot, Facebook) over time see [Roadmap](#roadmap).
 
 ## Requirements
 
@@ -31,7 +31,7 @@ Google Reviews is the first source. NinjaReviews is architected to support other
 - Ships as plain, vanilla JavaScript and CSS. No frameworks required on your side.
 - Comes with a guided web installer â€” no manual editing of config files needed.
 
-Google Reviews is the first source. NinjaReviews is architected to support other reputation platforms (Tripadvisor, Trustpilot, Facebook) over time â€” see [Roadmap](#roadmap).
+Google Reviews is the first source. NinjaReviews is architected to support other reputation platforms (Tripadvisor, Trustpilot, Facebook) over time see [Roadmap](#roadmap).
 
 ## Requirements
 
@@ -98,7 +98,7 @@ Found a bug? Have an idea? Want to add support for another review platform? See 
 
 ## Support the project
 
-NinjaReviews is free, self-hosted, and has no paid tier. If it saves you time, you're welcome to [buy the maintainer a coffee](https://buymeacoffee.com/hanamisoftware) â€” never expected, always appreciated.
+NinjaReviews is free, self-hosted, and has no paid tier. If it saves you time, you're welcome to [buy the maintainer a coffee](https://buymeacoffee.com/hanamisoftware) never expected, always appreciated.
 
 ## License
 
